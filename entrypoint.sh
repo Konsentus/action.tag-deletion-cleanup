@@ -15,3 +15,4 @@ if [ ! "$REF_TYPE" == "tag" ]; then
 fi
 echo $JSON
 git branch -a --contains tags/${REF}
+git rev-list -n 1 ${REF}
