@@ -4,7 +4,8 @@ RUN apk add --no-cache \
     bash \
     jq \
     git \
-    openssh-client
+    openssh-client \
+    hub
 
 ADD entrypoint.sh /entrypoint.sh
 
