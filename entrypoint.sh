@@ -15,7 +15,8 @@ if [ ! "${REF_TYPE}" == "tag" ]; then
     exit 0
 fi
 
-hub auth $INPUT_TOKEN
+GITHUB_TOKEN=$INPUT_TOKEN
+export GITHUB_TOKEN
 
 # itterate through all branches in origin
 for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"); do
