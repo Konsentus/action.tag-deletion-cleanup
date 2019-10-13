@@ -31,10 +31,10 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
     if [ "${latest_tag_commit}" = "${head_commit}" ]; then
         continue;
     fi
-    git config -l
+
     # git config --global user.name "${GITHUB_ACTOR}"
     # git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-    # git checkout ${local_branch}
-    # git reset --hard ${latest_tag}
-    # git push --force origin ${local_branch}
+    git checkout ${local_branch}
+    git reset --hard ${latest_tag}
+    git push --force origin ${local_branch}
 done
