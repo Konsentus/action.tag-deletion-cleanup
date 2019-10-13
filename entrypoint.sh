@@ -5,10 +5,6 @@ if [ -z "${GITHUB_EVENT_PATH}" ] || [ ! -f "${GITHUB_EVENT_PATH}" ]; then
     exit 2
 fi
 
-printenv | grep INPUT
-printenv | grep GIT
-exit
-
 ORIGIN=${INPUT_REMOTE_NAME}
 JSON=$(cat ${GITHUB_EVENT_PATH} | jq)
 REF=$(echo -E ${JSON} | jq -r '.ref')
@@ -18,6 +14,8 @@ if [ ! "${REF_TYPE}" == "tag" ]; then
     echo "Not a tag, skipping"
     exit 0
 fi
+
+hub auth $INPUT_TOKEN
 
 # itterate through all branches in origin
 for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"); do
@@ -36,9 +34,7 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
         continue;
     fi
 
-    # git config --global user.name "${GITHUB_ACTOR}"
-    # git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-    # git checkout ${local_branch}
-    # git reset --hard ${latest_tag}
-    # git push --force origin ${local_branch}
+    hub checkout ${local_branch}
+    hub reset --hard ${latest_tag}
+    hub push --force origin ${local_branch}
 done
