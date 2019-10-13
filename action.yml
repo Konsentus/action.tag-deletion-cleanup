@@ -3,4 +3,11 @@ description: # additional descriptive info about the action
 runs:
   using: 'docker'
   image: 'Dockerfile'
+inputs:
+  remote_name:
+    description: 'The name of the remote repository (default: origin)'
+    required: false
+    default: 'origin'
+
+
 # for additional options, see: https://help.github.com/en/articles/metadata-syntax-for-github-actions
