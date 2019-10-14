@@ -42,5 +42,6 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
     hub checkout ${local_branch}
     hub reset --hard ${latest_tag}
     hub rm .github/workflow/*
+    git commit -m "test1234"
     hub push --force ${remote_repo} ${local_branch}
 done
