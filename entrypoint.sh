@@ -39,9 +39,17 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
 
     remote_repo="https://${GITHUB_ACTOR}:${INPUT_GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
+    echo "copy .github to temp location"
+    cp -a .github /tmp/
+    echo "hub checkout ${local_branch}"
     hub checkout ${local_branch}
+    echo "hub reset --hard ${latest_tag}"
     hub reset --hard ${latest_tag}
-    hub rm .github/workflow/*
-    git commit -m "test1234"
+    echo "move .github back over"
+    rm -rf .github
+    mv /tmp/.github .
+    echo "hub commit -m 'Overlay current .github folder'"
+    hub commit -m 'Overlay current .github folder'
+    echo "hub push --force ${remote_repo} ${local_branch}"
     hub push --force ${remote_repo} ${local_branch}
 done
