@@ -20,7 +20,7 @@ if [ ! "${REF_TYPE}" == "tag" ]; then
     exit 0
 fi
 
-git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+git config --global user.email "actions@github.com"
 git config --global user.name "${GITHUB_ACTOR}"
 
 # itterate through all branches in origin
@@ -42,19 +42,26 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
 
     remote_repo="https://${GITHUB_ACTOR}:${INPUT_GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-    echo "copy .github to temp location"
+    echo "${branch} : copy .github to temp location"
     cp -a .github /tmp/
-    echo "hub checkout ${local_branch}"
-    hub checkout ${local_branch}
-    echo "hub reset --hard ${latest_tag}"
-    hub reset --hard ${latest_tag}
-    echo "move .github back over"
+    echo "${branch} : git checkout ${local_branch}"
+    git checkout ${local_branch}
+    echo "${branch} : git reset --hard ${latest_tag}"
+    git reset --hard ${latest_tag}
+    echo "${branch} : move .github back over"
     rm -rf .github
     mv /tmp/.github .
-    echo "hub add ."
-    hub add .
-    echo "hub commit -m 'Overlay current .github folder'"
-    hub commit -m 'Overlay current .github folder'
-    echo "hub push --force ${remote_repo} ${local_branch}"
-    hub push --force ${remote_repo} ${local_branch}
+    echo "${branch} : git add ."
+    git add .
+    if [ -n "$(git status --porcelain)" ]; then
+        echo "${branch} : git commit -m 'Overlay current .github folder'"
+        git commit -m 'Overlay current .github folder'
+    else
+        echo "${branch} : No changes detected to .github, bypassing commit"
+    fi
+    echo "${branch} : git push --force ${remote_repo} ${local_branch}"
+    git push --force ${remote_repo} ${local_branch}
 done
+
+# todo:
+# 1. disable/re-enable branch protection
