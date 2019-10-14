@@ -8,6 +8,9 @@ inputs:
     description: 'The name of the remote repository (default: origin)'
     required: false
     default: 'origin'
+  github_token:
+    description: Github authorisation token
+    required: true
 
 
 # for additional options, see: https://help.github.com/en/articles/metadata-syntax-for-github-actions

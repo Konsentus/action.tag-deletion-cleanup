@@ -5,6 +5,11 @@ if [ -z "${GITHUB_EVENT_PATH}" ] || [ ! -f "${GITHUB_EVENT_PATH}" ]; then
     exit 2
 fi
 
+if [ -z "${INPUT_GITHUB_TOKEN}" ]; then
+    echo "No Github token provided. Cannot continue"
+    exit 2
+fi
+
 ORIGIN=${INPUT_REMOTE_NAME}
 JSON=$(cat ${GITHUB_EVENT_PATH} | jq)
 REF=$(echo -E ${JSON} | jq -r '.ref')
@@ -14,9 +19,6 @@ if [ ! "${REF_TYPE}" == "tag" ]; then
     echo "Not a tag, skipping"
     exit 0
 fi
-
-GITHUB_TOKEN=$INPUT_TOKEN
-export GITHUB_TOKEN
 
 # itterate through all branches in origin
 for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"); do
@@ -35,7 +37,9 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
         continue;
     fi
 
+    remote_repo="https://${GITHUB_ACTOR}:${INPUT_GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
     hub checkout ${local_branch}
     hub reset --hard ${latest_tag}
-    hub push --force origin ${local_branch}
+    hub push --force ${remote_repo} ${local_branch}
 done
