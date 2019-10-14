@@ -51,6 +51,8 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
     echo "move .github back over"
     rm -rf .github
     mv /tmp/.github .
+    echo "hub add ."
+    hub add .
     echo "hub commit -m 'Overlay current .github folder'"
     hub commit -m 'Overlay current .github folder'
     echo "hub push --force ${remote_repo} ${local_branch}"
