@@ -20,6 +20,9 @@ if [ ! "${REF_TYPE}" == "tag" ]; then
     exit 0
 fi
 
+git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+git config --global user.name "${GITHUB_ACTOR}"
+
 # itterate through all branches in origin
 for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"); do
     local_branch=${branch/$ORIGIN\//}
