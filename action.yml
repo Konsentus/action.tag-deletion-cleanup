@@ -11,6 +11,10 @@ inputs:
   github_token:
     description: Github authorisation token
     required: true
+  ignore_branches:
+    description: List of branch patterns to ignore when cleaning up trailing branches
+    required: false
+    default: 'hotfix/* feature/*'
 
 
 # for additional options, see: https://help.github.com/en/articles/metadata-syntax-for-github-actions
