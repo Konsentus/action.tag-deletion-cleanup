@@ -19,7 +19,7 @@ is_in_pattern_list() {
 generate_required_status_checks() {
     local original=$1
     local result=
-    if [ "$(jq '.required_status_checks == null')" == "true" ]; then
+    if [ "$(echo -E $original | jq '.required_status_checks == null')" == "true" ]; then
         result='null'
     else
         result=$(jq -n \
@@ -37,7 +37,7 @@ generate_required_status_checks() {
 generate_required_pull_request_reviews() {
     local original=$1
     local result=
-    if [ "$(jq '.required_pull_request_reviews == null')" == "true" ]; then
+    if [ "$(echo -E $original | jq '.required_pull_request_reviews == null')" == "true" ]; then
         result='null'
     else
         result=$(jq -n \
@@ -63,7 +63,7 @@ generate_required_pull_request_reviews() {
 generate_restrictions() {
     local original=$1
     local result=
-    if [ "$(jq '.restrictions == null')" == "true" ]; then
+    if [ "$(echo -E $original | jq '.restrictions == null')" == "true" ]; then
         result='null'
     else
         result=$(jq -n \
