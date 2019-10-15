@@ -143,12 +143,12 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
 
     # todo: disable/reneable branch protection
 
-    current_protection=$(hub api repos/${GITHUB_REPOSITORY}/branches/${branch}/protection)
+    current_protection=$(hub api repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection)
     current_protection_status=$?
 
     if [ "$current_protection_status" -ne "0" ]; then
         echo "${branch} : Remove branch protection"
-        hub api -X DELETE repos/${GITHUB_REPOSITORY}/branches/${branch}/protection
+        hub api -X DELETE repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection
     fi
 
     echo "${branch} : git push --force ${remote_repo} ${local_branch}"
@@ -157,7 +157,7 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
     if [ "$current_protection_status" -ne "0" ]; then
         echo "${branch} : Re-enable branch protection"
         echo $(generate_branch_protection_from_result ${current_protection}) | \
-            hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${branch}/protection --input -
+            hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection --input -
     fi
 done
 
