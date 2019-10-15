@@ -204,6 +204,6 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
 
     CLEANED+="${local_branch},"
 done
-
+echo ""
 # return list of cleaned up branches
-echo ::set-output name=cleaned::$(echo $CLEANED | sed -e 's/,*$//')
+echo "::set-output name=cleaned::$(echo $CLEANED | sed -e 's/,*$//')"
