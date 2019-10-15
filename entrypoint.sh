@@ -202,7 +202,7 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
             hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection --input -
     fi
 
-    CLEANED+='${local_branch} '
+    CLEANED+="${local_branch} "
 done
 
 # return list of cleaned up branches
