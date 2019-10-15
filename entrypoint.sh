@@ -84,7 +84,7 @@ generate_branch_protection() {
     local original=$1
 
     local result=$(jq -n \
-    --argjson required_status_checks "$(generate_require_status_checks $original)" \
+    --argjson required_status_checks "$(generate_required_status_checks $original)" \
     --argjson enforce_admins_enabled "$(echo -E $original | jq '.enforce_admins.enabled // false')" \
     --argjson required_pull_request_reviews "$(generate_required_pull_request_reviews $original)" \
     --argjson restrictions "$(generate_restrictions $original)" \
