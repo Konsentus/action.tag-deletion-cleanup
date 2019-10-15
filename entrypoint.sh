@@ -16,6 +16,52 @@ is_in_pattern_list() {
     return 1
 }
 
+generate_branch_protection_from_result() {
+    local original=$1
+
+    local result=$(jq -n \
+    --argjson required_status_checks_strict "$(echo -E $original | jq '.required_status_checks.strict')" \
+    --argjson required_status_checks_contexts "[$(echo -E $original | jq '.required_status_checks.contexts[]?' -c | tr '\n' ',' | sed 's/,$//')]" \
+    --argjson enforce_admins_enabled "$(echo -E $original | jq '.enforce_admins.enabled')" \
+    --argjson required_pull_request_reviews_dismissal_restrictions_users "[$(echo -E $original | jq '.required_pull_request_reviews.dismissal_restrictions.users[]?.login' -c | tr '\n' ',' | sed 's/,$//')]" \
+    --argjson required_pull_request_reviews_dismissal_restrictions_teams "[$(echo -E $original | jq '.required_pull_request_reviews.dismissal_restrictions.teams[]?.login' -c | tr '\n' ',' | sed 's/,$//')]" \
+    --argjson required_pull_request_reviews_dismiss_stale_reviews "$(echo -E $original | jq '.required_pull_request_reviews.dismiss_stale_reviews')" \
+    --argjson required_pull_request_reviews_require_code_owner_reviews "$(echo -E $original | jq '.required_pull_request_reviews.require_code_owner_reviews')" \
+    --argjson required_pull_request_reviews_required_approving_review_count "$(echo -E $original | jq '.required_pull_request_reviews.required_approving_review_count')" \
+    --argjson restrictions_users "[$(echo -E $original | jq '.restrictions.users[]?.login' -c | tr '\n' ',' | sed 's/,$//')]" \
+    --argjson restrictions_teams "[$(echo -E $original | jq '.restrictions.teams[]?.slug' -c | tr '\n' ',' | sed 's/,$//')]" \
+    --argjson restrictions_apps "[$(echo -E $original | jq '.restrictions.apps[]?.slug' -c | tr '\n' ',' | sed 's/,$//')]" \
+    '{
+        "required_status_checks": {
+            "strict": $required_status_checks_strict,
+            "contexts": $required_status_checks_contexts
+
+        },
+        "enforce_admins": $enforce_admins_enabled,
+        "required_pull_request_reviews": {
+            "dismissal_restrictions": {
+            "users": $required_pull_request_reviews_dismissal_restrictions_users,
+            "teams": $required_pull_request_reviews_dismissal_restrictions_teams
+            },
+            "dismiss_stale_reviews": $required_pull_request_reviews_dismiss_stale_reviews,
+            "require_code_owner_reviews": $required_pull_request_reviews_require_code_owner_reviews,
+            "required_approving_review_count": $required_pull_request_reviews_required_approving_review_count
+        },
+        "restrictions": {
+            "users": $restrictions_users,
+            "teams": $restrictions_teams,
+            "apps": $restrictions_apps
+        }
+    }')
+
+    if [ "$?" -ne 0 ]; then
+        echo "Error when attempting to generate branch protection"
+        exit 2
+    fi
+
+    echo $result
+}
+
 if [ -z "${GITHUB_EVENT_PATH}" ] || [ ! -f "${GITHUB_EVENT_PATH}" ]; then
     echo "No file containing event data found. Cannot continue"
     exit 2
@@ -92,8 +138,24 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
         echo "${branch} : No changes detected to .github, bypassing commit"
     fi
 
+    # todo: disable/reneable branch protection
+
+    current_protection=$(hub api repos/${GITHUB_REPOSITORY}/branches/${branch}/protection)
+    current_protection_status=$?
+
+    if [ "$current_protection_status" -ne "0" ]; then
+        echo "${branch} : Remove branch protection"
+        hub api -X DELETE repos/${GITHUB_REPOSITORY}/branches/${branch}/protection
+    fi
+
     echo "${branch} : git push --force ${remote_repo} ${local_branch}"
     git push --force ${remote_repo} ${local_branch}
+
+    if [ "$current_protection_status" -ne "0" ]; then
+        echo "${branch} : Re-enable branch protection"
+        echo $(generate_branch_protection_from_result ${current_protection}) | \
+            hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${branch}/protection --input -
+    fi
 done
 
 # todo:

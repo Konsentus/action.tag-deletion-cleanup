@@ -6,6 +6,8 @@ RUN apk add --no-cache \
     git \
     openssh-client
 
+RUN apk add --no-cache hub --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing
+
 ADD entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
