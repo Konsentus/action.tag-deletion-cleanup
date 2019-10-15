@@ -157,49 +157,48 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
         continue;
     fi
 
-    # # github actions prevents itself from modifying actions, so if there have been changes to any actions
-    # # between the tags, we need to preserve the current version, and not revert!
-    # echo "${branch} : copy .github to temp location"
-    # cp -a .github /tmp/
+    # github actions prevents itself from modifying actions, so if there have been changes to any actions
+    # between the tags, we need to preserve the current version, and not revert!
+    echo "${branch} : copy .github to temp location"
+    cp -a .github /tmp/
 
-    # echo "${branch} : git checkout ${local_branch}"
-    # git checkout ${local_branch}
-    # # to revert the branch back to the last tag, we need to reset the branch and force push
-    # echo "${branch} : git reset --hard ${latest_tag}"
-    # git reset --hard ${latest_tag}
+    echo "${branch} : git checkout ${local_branch}"
+    git checkout ${local_branch}
+    # to revert the branch back to the last tag, we need to reset the branch and force push
+    echo "${branch} : git reset --hard ${latest_tag}"
+    git reset --hard ${latest_tag}
 
-    # echo "${branch} : move .github back over"
-    # rm -rf .github
-    # mv /tmp/.github .
+    echo "${branch} : move .github back over"
+    rm -rf .github
+    mv /tmp/.github .
 
-    # echo "${branch} : git add ."
-    # git add .
+    echo "${branch} : git add ."
+    git add .
 
-    # if [ -n "$(git status --porcelain)" ]; then
-    #     echo "${branch} : git commit -m 'Overlay current .github folder'"
-    #     git commit -m 'Overlay current .github folder'
-    # else
-    #     echo "${branch} : No changes detected to .github, bypassing commit"
-    # fi
+    if [ -n "$(git status --porcelain)" ]; then
+        echo "${branch} : git commit -m 'Overlay current .github folder'"
+        git commit -m 'Overlay current .github folder'
+    else
+        echo "${branch} : No changes detected to .github, bypassing commit"
+    fi
 
     # todo: disable/reneable branch protection
 
     current_protection=$(hub api repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection)
     current_protection_status=$?
 
-    # if [ "$current_protection_status" -eq "0" ]; then
-    #     echo "${branch} : Remove branch protection"
-    #     hub api -X DELETE repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection
-    # fi
+    if [ "$current_protection_status" -eq "0" ]; then
+        echo "${branch} : Remove branch protection"
+        hub api -X DELETE repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection
+    fi
 
-    # echo "${branch} : git push --force ${remote_repo} ${local_branch}"
-    #git push --force ${remote_repo} ${local_branch}
+    echo "${branch} : git push --force ${remote_repo} ${local_branch}"
+    git push --force ${remote_repo} ${local_branch}
 
     if [ "$current_protection_status" -eq "0" ]; then
         echo "${branch} : Re-enable branch protection"
-        generate_branch_protection ${current_protection}
-        # echo $(generate_branch_protection ${current_protection}) | \
-        #     hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection --input -
+        echo $(generate_branch_protection ${current_protection}) | \
+            hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection --input -
     fi
 done
 
