@@ -17,7 +17,7 @@ inputs:
     default: 'hotfix/* feature/*'
 outputs:
   cleaned:
-    description: list of cleaned up branched (space separated)
+    description: list of cleaned up branched (comma-separated)
 
 
 # for additional options, see: https://help.github.com/en/articles/metadata-syntax-for-github-actions
