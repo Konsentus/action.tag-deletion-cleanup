@@ -84,12 +84,15 @@ generate_branch_protection() {
     local original=$1
 
     local result=$(jq -n \
+    --argjson required_status_checks "$(generate_require_status_checks $original)" \
     --argjson enforce_admins_enabled "$(echo -E $original | jq '.enforce_admins.enabled // false')" \
+    --argjson required_pull_request_reviews "$(generate_required_pull_request_reviews $original)" \
+    --argjson restrictions "$(generate_restrictions $original)" \
     '{
-        "required_status_checks": $(generate_require_status_checks $original),
+        "required_status_checks": $required_status_checks,
         "enforce_admins": $enforce_admins_enabled,
-        "required_pull_request_reviews": $(generate_required_pull_request_reviews $original),
-        "restrictions": $(generate_restrictions $original)
+        "required_pull_request_reviews": $required_pull_request_reviews,
+        "restrictions": $restrictions
     }')
 
     if [ "$?" -ne 0 ]; then
