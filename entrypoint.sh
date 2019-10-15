@@ -121,6 +121,7 @@ JSON=$(cat ${GITHUB_EVENT_PATH} | jq)
 REF=$(echo -E ${JSON} | jq -r '.ref')
 REF_TYPE=$(echo -e ${JSON} | jq -r '.ref_type')
 IGNORED_BRANCHES=(${INPUT_IGNORE_BRANCHES})
+CLEANED=''
 
 if [ ! "${REF_TYPE}" == "tag" ]; then
     echo "Not a tag, skipping"
@@ -200,8 +201,9 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
         echo $(generate_branch_protection ${current_protection}) | \
             hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection --input -
     fi
+
+    CLEANED+='${local_branch} '
 done
 
-# todo:
-# 1. disable/re-enable branch protection
-# 2. what happens to branches that have been hotfixed ... wont they also be reset (unintentionally)?
+# return list of cleaned up branches
+echo ::set-output name=cleaned::$(echo $CLEANED | tr -d '[:space:]')
