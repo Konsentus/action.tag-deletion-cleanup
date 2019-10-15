@@ -72,6 +72,9 @@ if [ -z "${INPUT_GITHUB_TOKEN}" ]; then
     exit 2
 fi
 
+GITHUB_TOKEN=${INPUT_GITHUB_TOKEN}
+export GITHUB_TOKEN
+
 ORIGIN=${INPUT_REMOTE_NAME}
 JSON=$(cat ${GITHUB_EVENT_PATH} | jq)
 REF=$(echo -E ${JSON} | jq -r '.ref')
@@ -85,6 +88,8 @@ fi
 
 git config --global user.email "actions@github.com"
 git config --global user.name "${GITHUB_ACTOR}"
+
+remote_repo="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
 # itterate through all branches in origin
 # intent is to ensure the branch the tag was on has been reset back to the latest tag (ie code had been reverted)
@@ -110,8 +115,6 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
     if [ "${latest_tag_commit}" = "${head_commit}" ]; then
         continue;
     fi
-
-    remote_repo="https://${GITHUB_ACTOR}:${INPUT_GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
     # github actions prevents itself from modifying actions, so if there have been changes to any actions
     # between the tags, we need to preserve the current version, and not revert!
