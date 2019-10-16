@@ -15,6 +15,10 @@ inputs:
     description: List of branch patterns to ignore when cleaning up trailing branches
     required: false
     default: 'hotfix/* feature/*'
+  backup_dir:
+    description: directory name for backups to be stored
+    required: false
+    default: tag-deletion-cleanup
 outputs:
   cleaned:
     description: list of cleaned up branched (comma-separated)
