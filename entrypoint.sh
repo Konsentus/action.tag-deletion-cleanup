@@ -165,6 +165,11 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
 
     echo "${branch} : git checkout ${local_branch}"
     git checkout ${local_branch}
+
+    echo "${branch} : create backup of HEAD commit"
+    mkdir -p /tmp/tag-deletion-cleanup/${local_branch}
+    cp -a . /tmp/tag-deletion-cleanup/${local_branch}
+
     # to revert the branch back to the last tag, we need to reset the branch and force push
     echo "${branch} : git reset --hard ${latest_tag}"
     git reset --hard ${latest_tag}
