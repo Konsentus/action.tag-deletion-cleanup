@@ -183,7 +183,7 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
 
     if [ -n "$(git status --porcelain)" ]; then
         echo "${branch} : git commit -m 'Overlay current .github folder'"
-        git commit -m 'Overlay current .github folder'
+        git commit -m 'Overlay current .github folder following Tag cleanup'
     else
         echo "${branch} : No changes detected to .github, bypassing commit"
     fi
