@@ -175,20 +175,6 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
     echo "${branch} : git reset --hard ${latest_tag}"
     git reset --hard ${latest_tag}
 
-    # echo "${branch} : move .github back over"
-    # rm -rf .github
-    # mv /tmp/.github .
-
-    # echo "${branch} : git add ."
-    # git add .
-
-    # if [ -n "$(git status --porcelain)" ]; then
-    #     echo "${branch} : git commit -m 'Overlay current .github folder'"
-    #     git commit -m 'Overlay current .github folder following Tag cleanup'
-    # else
-    #     echo "${branch} : No changes detected to .github, bypassing commit"
-    # fi
-
     current_protection=$(hub api repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection)
     current_protection_status=$?
 
