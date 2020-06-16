@@ -9,7 +9,7 @@ is_in_pattern_list() {
 
     for pattern in "${list[@]}"; do
         if echo "$find" | grep -qe "$pattern"; then
-           return 0
+            return 0
         fi
     done
 
@@ -23,9 +23,9 @@ generate_required_status_checks() {
         result='null'
     else
         result=$(jq -n \
-        --argjson required_status_checks_strict "$(echo -E $original | jq '.required_status_checks.strict // false')" \
-        --argjson required_status_checks_contexts "[$(echo -E $original | jq '.required_status_checks.contexts[]?' -c | tr '\n' ',' | sed 's/,$//')]" \
-        '{
+            --argjson required_status_checks_strict "$(echo -E $original | jq '.required_status_checks.strict // false')" \
+            --argjson required_status_checks_contexts "[$(echo -E $original | jq '.required_status_checks.contexts[]?' -c | tr '\n' ',' | sed 's/,$//')]" \
+            '{
             "strict": $required_status_checks_strict,
             "contexts": $required_status_checks_contexts
         }')
@@ -41,12 +41,12 @@ generate_required_pull_request_reviews() {
         result='null'
     else
         result=$(jq -n \
-        --argjson required_pull_request_reviews_dismissal_restrictions_users "[$(echo -E $original | jq '.required_pull_request_reviews.dismissal_restrictions.users[]?.login' -c | tr '\n' ',' | sed 's/,$//')]" \
-        --argjson required_pull_request_reviews_dismissal_restrictions_teams "[$(echo -E $original | jq '.required_pull_request_reviews.dismissal_restrictions.teams[]?.login' -c | tr '\n' ',' | sed 's/,$//')]" \
-        --argjson required_pull_request_reviews_dismiss_stale_reviews "$(echo -E $original | jq '.required_pull_request_reviews.dismiss_stale_reviews // false')" \
-        --argjson required_pull_request_reviews_require_code_owner_reviews "$(echo -E $original | jq '.required_pull_request_reviews.require_code_owner_reviews // false')" \
-        --argjson required_pull_request_reviews_required_approving_review_count "$(echo -E $original | jq '.required_pull_request_reviews.required_approving_review_count // 1')" \
-        '{
+            --argjson required_pull_request_reviews_dismissal_restrictions_users "[$(echo -E $original | jq '.required_pull_request_reviews.dismissal_restrictions.users[]?.login' -c | tr '\n' ',' | sed 's/,$//')]" \
+            --argjson required_pull_request_reviews_dismissal_restrictions_teams "[$(echo -E $original | jq '.required_pull_request_reviews.dismissal_restrictions.teams[]?.login' -c | tr '\n' ',' | sed 's/,$//')]" \
+            --argjson required_pull_request_reviews_dismiss_stale_reviews "$(echo -E $original | jq '.required_pull_request_reviews.dismiss_stale_reviews // false')" \
+            --argjson required_pull_request_reviews_require_code_owner_reviews "$(echo -E $original | jq '.required_pull_request_reviews.require_code_owner_reviews // false')" \
+            --argjson required_pull_request_reviews_required_approving_review_count "$(echo -E $original | jq '.required_pull_request_reviews.required_approving_review_count // 1')" \
+            '{
             "dismissal_restrictions": {
                 "users": $required_pull_request_reviews_dismissal_restrictions_users,
                 "teams": $required_pull_request_reviews_dismissal_restrictions_teams
@@ -67,10 +67,10 @@ generate_restrictions() {
         result='null'
     else
         result=$(jq -n \
-        --argjson restrictions_users "[$(echo -E $original | jq '.restrictions.users[]?.login' -c | tr '\n' ',' | sed 's/,$//')]" \
-        --argjson restrictions_teams "[$(echo -E $original | jq '.restrictions.teams[]?.slug' -c | tr '\n' ',' | sed 's/,$//')]" \
-        --argjson restrictions_apps "[$(echo -E $original | jq '.restrictions.apps[]?.slug' -c | tr '\n' ',' | sed 's/,$//')]" \
-        '{
+            --argjson restrictions_users "[$(echo -E $original | jq '.restrictions.users[]?.login' -c | tr '\n' ',' | sed 's/,$//')]" \
+            --argjson restrictions_teams "[$(echo -E $original | jq '.restrictions.teams[]?.slug' -c | tr '\n' ',' | sed 's/,$//')]" \
+            --argjson restrictions_apps "[$(echo -E $original | jq '.restrictions.apps[]?.slug' -c | tr '\n' ',' | sed 's/,$//')]" \
+            '{
             "users": $restrictions_users,
             "teams": $restrictions_teams,
             "apps": $restrictions_apps
@@ -84,11 +84,11 @@ generate_branch_protection() {
     local original=$1
 
     local result=$(jq -n \
-    --argjson required_status_checks "$(generate_required_status_checks $original)" \
-    --argjson enforce_admins_enabled "$(echo -E $original | jq '.enforce_admins.enabled // false')" \
-    --argjson required_pull_request_reviews "$(generate_required_pull_request_reviews $original)" \
-    --argjson restrictions "$(generate_restrictions $original)" \
-    '{
+        --argjson required_status_checks "$(generate_required_status_checks $original)" \
+        --argjson enforce_admins_enabled "$(echo -E $original | jq '.enforce_admins.enabled // false')" \
+        --argjson required_pull_request_reviews "$(generate_required_pull_request_reviews $original)" \
+        --argjson restrictions "$(generate_restrictions $original)" \
+        '{
         "required_status_checks": $required_status_checks,
         "enforce_admins": $enforce_admins_enabled,
         "required_pull_request_reviews": $required_pull_request_reviews,
@@ -141,21 +141,21 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
 
     # skip ignored branches
     if is_in_pattern_list $local_branch "${IGNORED_BRANCHES[@]}"; then
-        continue;
+        continue
     fi
 
     head_commit=$(git rev-list -n 1 ${branch})
 
-    latest_tag=$(git describe --abbrev=0 --tags --first-parent ${branch} 2> /dev/null)
+    latest_tag=$(git describe --abbrev=0 --tags --first-parent ${branch} 2>/dev/null)
     # ignore branches with no existing tags (ignores feature branches and initial commits)
     if [ "$?" -ne "0" ]; then
-        continue;
+        continue
     fi
 
-    latest_tag_commit=$(git rev-list -n 1 ${latest_tag} 2> /dev/null)
+    latest_tag_commit=$(git rev-list -n 1 ${latest_tag} 2>/dev/null)
     # if the commit ids are identical, then latest tag is at head; no action to take
     if [ "${latest_tag_commit}" = "${head_commit}" ]; then
-        continue;
+        continue
     fi
 
     # # github actions prevents itself from modifying actions, so if there have been changes to any actions
@@ -189,7 +189,7 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
     if [ "$current_protection_status" -eq "0" ]; then
         echo "${branch} : Re-enable branch protection"
         echo $(generate_branch_protection ${current_protection}) | \
-            hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection --input -
+            hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection -H "accept: application/vnd.github.luke-cage-preview+json" --input -
     fi
 
     CLEANED+="${local_branch},"
