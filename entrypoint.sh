@@ -189,7 +189,7 @@ for branch in $(git for-each-ref --format="%(refname:short)" | grep "${ORIGIN}/"
     if [ "$current_protection_status" -eq "0" ]; then
         echo "${branch} : Re-enable branch protection"
         echo $(generate_branch_protection ${current_protection}) | \
-            hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection --input -
+            hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection -H "Accept: application/vnd.github.luke-cage-preview+json" --input -
     fi
 
     CLEANED+="${local_branch},"
