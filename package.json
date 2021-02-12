@@ -1,0 +1,20 @@
+{
+  "name": "action.tag-deletion-cleanup",
+  "version": "0.0.1",
+  "description": "Resets branch back to previous tag (where exists) when a release tag is deleted",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Konsentus/action.tag-deletion-cleanup.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Konsentus/action.tag-deletion-cleanup/issues"
+  },
+  "homepage": "https://github.com/Konsentus/action.tag-deletion-cleanup#readme",
+  "dependencies": {},
+  "devDependencies": {}
+}
